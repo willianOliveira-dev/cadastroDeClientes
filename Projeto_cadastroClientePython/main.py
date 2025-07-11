@@ -36,120 +36,120 @@ class App(ctk.CTk):
     def alterarAparencia(self):
         
         # Função anônima para definir a cor de fundo com base no modo
-        modoCor = lambda modo: '#EBEBEB' if modo == 'Light' else '#242424'
+        colorMode = lambda mode: '#EBEBEB' if mode == 'Light' else '#242424'
 
         # Verifica widgets específicos (por tipo) dentro da interface
-        def verificaoWidget(objetoCTk: object) -> list:
-            return [widget for widget in self.winfo_children() if isinstance(widget, objetoCTk)]
+        def checkWidget(widgetCTk: object) -> list:
+            return [widget for widget in self.winfo_children() if isinstance(widget, widgetCTk)]
 
         # Lógica para alterar o modo de aparência
-        def alterar():
+        def change():
             # Verifica o estado do botão switch e define o modo
-            modo = 'Light' if butaoAlterarCor.get() else 'Dark'
-            self._set_appearance_mode(modo)  # Define o modo na interface
+            mode = 'Light' if switchChangeColor.get() else 'Dark'
+            self._set_appearance_mode(mode)  # Define o modo na interface
             
             # Define cores baseadas no modo atual
-            nova_cores = '#000' if butaoAlterarCor.get() else '#fff'
+            newColors = '#000' if switchChangeColor.get() else '#fff'
 
             # Configura o botão switch
-            butaoAlterarCor.configure(
-                text=modo,
+            switchChangeColor.configure(
+                text=mode,
                 font=('Roboto', 12),
-                text_color=nova_cores,
-                bg_color=modoCor(modo=modo),
+                text_color=newColors,
+                bg_color=colorMode(mode=mode),
                 
             )
             
             # Altera a cor de todos os labels na interface
-            for widgetLabel in verificaoWidget(ctk.CTkLabel):
+            for widgetLabel in checkWidget(ctk.CTkLabel):
                 widgetLabel.configure(
-                    text_color=nova_cores, 
-                    bg_color=modoCor(modo=modo)
+                    text_color=newColors, 
+                    bg_color=colorMode(mode=mode)
                 )
             
             # Altera a cor do primeiro frame encontrado
-            frameAjuste = verificaoWidget(ctk.CTkFrame)
-            frameAjuste[0].configure(bg_color=modoCor(modo=modo))
+            frameAdjust = checkWidget(ctk.CTkFrame)
+            frameAdjust[0].configure(bg_color=colorMode(mode=mode))
             
             # Configura o TabView e seus widgets
-            tabViewAjuste = verificaoWidget(ctk.CTkTabview)
-            if tabViewAjuste:
-                tabViewAjuste[0].configure(
-                    fg_color='#fff' if modo == 'Light' else '#2b2e2c',
-                    bg_color=modoCor(modo=modo)
+            tabViewAdjust = checkWidget(ctk.CTkTabview)
+            if tabViewAdjust:
+                tabViewAdjust[0].configure(
+                    fg_color='#fff' if mode == 'Light' else '#2b2e2c',
+                    bg_color=colorMode(mode=mode)
                 )
                 
                 # Itera por todos os labels dentro das abas do TabView
-                for tabviewConfigLabel in tabViewAjuste:
+                for tabviewConfigLabel in tabViewAdjust:
                     for infoLabel in tabviewConfigLabel.winfo_children(): # infoLabel -> Aba1 e Aba2
                         for label in infoLabel.winfo_children(): # Dentro da Aba1 e Aba2,  verifico os labels
                             if isinstance(label, ctk.CTkLabel): # Se pertencer ao objeto CTkLabel ->  configura a cor de texto
-                                label.configure(text_color=nova_cores)
+                                label.configure(text_color=newColors)
                                 
     
         # Cria o botão switch para alternar entre claro e escuro
-        butaoAlterarCor = ctk.CTkSwitch(
+        switchChangeColor = ctk.CTkSwitch(
             self, 
             text='Tema', 
             font=('Roboto', 12),  
-            command=alterar,
+            command=change,
             button_hover_color='#c4003b'
         )
         # Posiciona o botão switch
-        butaoAlterarCor.grid(row=5, column=0, sticky='w', padx=5, pady=5)
+        switchChangeColor.grid(row=5, column=0, sticky='w', padx=5, pady=5)
         
     def horaSistema(self):
         
-        def atualizarHora():
-            horaAtual =strftime('%H:%M:%S')
-            labelHora.configure(text=horaAtual)
-            labelHora.after(ms=1000, func=atualizarHora) # Altera o horário a cada 1 segundo
+        def updateTime():
+            currentTime = strftime('%H:%M:%S')
+            timeLabel.configure(text=currentTime)
+            timeLabel.after(ms=1000, func=updateTime) # Altera o horário a cada 1 segundo
             
-        labelHora = ctk.CTkLabel( #Inicia com um horário
+        timeLabel = ctk.CTkLabel( #Inicia com um horário
             self, 
             text=strftime('%H:%M:%S'), 
             font=('Coolvetica', 28),
             )
         
-        labelHora.grid(row=2, column=0, padx=15, pady=5, sticky='n')
-        atualizarHora()
+        timeLabel.grid(row=2, column=0, padx=15, pady=5, sticky='n')
+        updateTime()
  
     # Método que organiza os widgets do sistema
     def sistema(self):
         
         # Função criar arquivo
-        def criar_arquivo(caminho_excel):
+        def createFile(excelPath):
                 try:
-                    arquivoExcel = load_workbook(caminho_excel) 
+                    excelFile = load_workbook(excelPath) 
                 except FileNotFoundError:
-                    arquivoExcel = Workbook()
-                    planilhaFisica = arquivoExcel.active
-                    planilhaFisica.title = 'PessoaFisica'
-                    planilhaJuridica = arquivoExcel.create_sheet('PessoaJuridica')
+                    excelFile = Workbook()
+                    physicalSheet = excelFile.active
+                    physicalSheet.title = 'PessoaFisica'
+                    legalSheet = excelFile.create_sheet('PessoaJuridica')
                     
-                    planilhaFisica['A1'] = labelNome.cget(attribute_name='text')
-                    planilhaFisica['B1'] = labelSobrenome.cget(attribute_name='text')
-                    planilhaFisica['C1'] = labelSexo.cget(attribute_name='text')
-                    planilhaFisica['D1'] = labelEmail.cget(attribute_name='text')
-                    planilhaFisica['E1'] = labelSenha.cget(attribute_name='text')
-                    planilhaFisica['F1'] = 'Data(Abertura)'
-                    planilhaFisica['G1'] = labelCpf.cget(attribute_name='text')
-                    planilhaFisica['H1'] = labelTelefone.cget(attribute_name='text')
-                    planilhaFisica['I1'] = labelEndereco.cget(attribute_name='text')
+                    physicalSheet['A1'] = nameLabel.cget(attribute_name='text')
+                    physicalSheet['B1'] = lastNameLabel.cget(attribute_name='text')
+                    physicalSheet['C1'] = genderLabel.cget(attribute_name='text')
+                    physicalSheet['D1'] = emailLabel.cget(attribute_name='text')
+                    physicalSheet['E1'] = passwordLabel.cget(attribute_name='text')
+                    physicalSheet['F1'] = 'Data(Abertura)'
+                    physicalSheet['G1'] = cpfLabel.cget(attribute_name='text')
+                    physicalSheet['H1'] = phoneLabel.cget(attribute_name='text')
+                    physicalSheet['I1'] = addressLabel.cget(attribute_name='text')
                     
-                    planilhaJuridica['A1'] = labelNomeEmpresa.cget(attribute_name='text')
-                    planilhaJuridica['B1'] = labelNomeFantasia.cget(attribute_name='text')
-                    planilhaJuridica['C1'] = labelTipoEmpresa.cget(attribute_name='text')
-                    planilhaJuridica['D1'] = labelEmailEmpresa.cget(attribute_name='text')
-                    planilhaJuridica['E1'] = labelSenhaEmpresa.cget(attribute_name='text')
-                    planilhaJuridica['F1'] = 'Data(Abertura)'
-                    planilhaJuridica['G1'] = labelCnpj.cget(attribute_name='text')
-                    planilhaJuridica['H1'] = labelTelefoneEmpresa.cget(attribute_name='text')
-                    planilhaJuridica['I1'] = labelEnderecoEmpresa.cget(attribute_name='text')
+                    legalSheet['A1'] = companyNameLabel.cget(attribute_name='text')
+                    legalSheet['B1'] = tradeNameLabel.cget(attribute_name='text')
+                    legalSheet['C1'] = companyTypeLabel.cget(attribute_name='text')
+                    legalSheet['D1'] = companyEmailLabel.cget(attribute_name='text')
+                    legalSheet['E1'] = companyPasswordLabel.cget(attribute_name='text')
+                    legalSheet['F1'] = 'Data(Abertura)'
+                    legalSheet['G1'] = cnpjLabel.cget(attribute_name='text')
+                    legalSheet['H1'] = companyPhoneLabel.cget(attribute_name='text')
+                    legalSheet['I1'] = companyAddressLabel.cget(attribute_name='text')
                     
-                    arquivoExcel.save(caminho_excel)
+                    excelFile.save(excelPath)
                 
-                return arquivoExcel
+                return excelFile
             
         # Frame principal do sistema
         frame = ctk.CTkFrame(
@@ -160,7 +160,7 @@ class App(ctk.CTk):
         )
         
         # Label com título do sistema
-        labelSistema = ctk.CTkLabel(
+        systemLabel = ctk.CTkLabel(
             frame, 
             text='Sistema de Cadastro de Clientes', 
             text_color='#fff',  # Cor do texto
@@ -172,12 +172,12 @@ class App(ctk.CTk):
         # Configuração da expansão da coluna para centralizar
         frame.grid_columnconfigure(0, weight=1)
         # Posiciona o título no frame
-        labelSistema.grid(row=0, column=0, padx=10, pady=10)
+        systemLabel.grid(row=0, column=0, padx=10, pady=10)
         # Posiciona o frame no grid principal
         frame.grid(row=0, column=0, columnspan=6, padx=10, pady=10, sticky='nsew')
 
         # Label "Cadastra-se" abaixo do frame principal
-        labelCadastro = ctk.CTkLabel(
+        registerLabel = ctk.CTkLabel(
             self, 
             text='Cadastra-se',
             text_color='#fff',  # Cor do texto
@@ -186,7 +186,7 @@ class App(ctk.CTk):
             anchor='w'  # Alinhamento à esquerda
         )
         # Posiciona o label no grid
-        labelCadastro.grid(row=1, column=2, padx=10, pady=10, sticky='nw')
+        registerLabel.grid(row=1, column=2, padx=10, pady=10, sticky='nw')
         
         # Cria o TabView para as abas de cadastro
         tabsView = ctk.CTkTabview(
@@ -211,24 +211,24 @@ class App(ctk.CTk):
         # Linha 0 e 1
         # Coluna 0 e 3
         # Nome
-        labelNome = ctk.CTkLabel(tabsView.tab('Pessoa Física'), text='Nome', font=('Roboto', 16))
-        labelNome.grid(row=0, column=0, padx=15, pady=5, sticky='nw')
+        nameLabel = ctk.CTkLabel(tabsView.tab('Pessoa Física'), text='Nome', font=('Roboto', 16))
+        nameLabel.grid(row=0, column=0, padx=15, pady=5, sticky='nw')
         
-        entradaNome = ctk.CTkEntry(tabsView.tab('Pessoa Física'), placeholder_text='Digite o seu Nome', width=250)
-        entradaNome.grid(row=1, column=0, columnspan=2, padx=10, pady=5, sticky='nw')
+        nameEntry = ctk.CTkEntry(tabsView.tab('Pessoa Física'), placeholder_text='Digite o seu Nome', width=250)
+        nameEntry.grid(row=1, column=0, columnspan=2, padx=10, pady=5, sticky='nw')
         
         # Sobrenome
-        labelSobrenome = ctk.CTkLabel(tabsView.tab('Pessoa Física'), text='Sobrenome', font=('Roboto', 16))
-        labelSobrenome.grid(row=0, column=3, padx=15, pady=5, sticky='nw')
+        lastNameLabel = ctk.CTkLabel(tabsView.tab('Pessoa Física'), text='Sobrenome', font=('Roboto', 16))
+        lastNameLabel.grid(row=0, column=3, padx=15, pady=5, sticky='nw')
         
-        entradaSobrenome = ctk.CTkEntry(tabsView.tab('Pessoa Física'), placeholder_text='Digite o seu Sobrenome', width=250)
-        entradaSobrenome.grid(row=1, column=3, columnspan=2, padx=10, pady=5, sticky='nw')
+        lastNameEntry = ctk.CTkEntry(tabsView.tab('Pessoa Física'), placeholder_text='Digite o seu Sobrenome', width=250)
+        lastNameEntry.grid(row=1, column=3, columnspan=2, padx=10, pady=5, sticky='nw')
         
         # Opção de Menu
-        labelSexo = ctk.CTkLabel(tabsView.tab('Pessoa Física'), text='Sexo', font=('Roboto', 16))
-        labelSexo.grid(row=0, column=5, padx=15, pady=5, sticky='nw')
+        genderLabel = ctk.CTkLabel(tabsView.tab('Pessoa Física'), text='Sexo', font=('Roboto', 16))
+        genderLabel.grid(row=0, column=5, padx=15, pady=5, sticky='nw')
         
-        opcaoMenuSexo = ctk.CTkOptionMenu(
+        genderMenu = ctk.CTkOptionMenu(
             tabsView.tab('Pessoa Física'), 
             values=['Masculino', 'Feminino', 'Outros'], 
             bg_color='transparent', 
@@ -236,69 +236,69 @@ class App(ctk.CTk):
             dropdown_hover_color='#c4003b'
             )
         
-        opcaoMenuSexo.grid(row=1, column=5, padx=10, pady=5, sticky='nw')
+        genderMenu.grid(row=1, column=5, padx=10, pady=5, sticky='nw')
         
         # Linha 2 e 3
         # Coluna 0 e 3
         # Email
-        labelEmail = ctk.CTkLabel(tabsView.tab('Pessoa Física'), text='E-mail', font=('Roboto', 16))
-        labelEmail.grid(row=2, column=0, padx=15, pady=5, sticky='nw')
+        emailLabel = ctk.CTkLabel(tabsView.tab('Pessoa Física'), text='E-mail', font=('Roboto', 16))
+        emailLabel.grid(row=2, column=0, padx=15, pady=5, sticky='nw')
         
-        entradaEmail = ctk.CTkEntry(tabsView.tab('Pessoa Física'), placeholder_text='Digite o seu E-mail', width=250)
-        entradaEmail.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky='nw')
+        emailEntry = ctk.CTkEntry(tabsView.tab('Pessoa Física'), placeholder_text='Digite o seu E-mail', width=250)
+        emailEntry.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky='nw')
         
         # Senha
-        labelSenha = ctk.CTkLabel(tabsView.tab('Pessoa Física'), text='Senha', font=('Roboto', 16))
-        labelSenha.grid(row=2, column=3, padx=15, pady=5, sticky='nw')
+        passwordLabel = ctk.CTkLabel(tabsView.tab('Pessoa Física'), text='Senha', font=('Roboto', 16))
+        passwordLabel.grid(row=2, column=3, padx=15, pady=5, sticky='nw')
         
-        entradaSenha = ctk.CTkEntry(tabsView.tab('Pessoa Física'), placeholder_text='Digite a sua Senha', show='*', width=250)
-        entradaSenha.grid(row=3, column=3, columnspan=2, padx=10, pady=5, sticky='nw')
+        passwordEntry = ctk.CTkEntry(tabsView.tab('Pessoa Física'), placeholder_text='Digite a sua Senha', show='*', width=250)
+        passwordEntry.grid(row=3, column=3, columnspan=2, padx=10, pady=5, sticky='nw')
         
         #data
-        dataAbertura = ctk.CTkLabel(tabsView.tab('Pessoa Física'), text='Data(Abertura)', font=('Roboto', 16))
-        dataAbertura.grid(row=2, column=5, padx=15, pady=5, sticky='nw')
+        openingDateLabel = ctk.CTkLabel(tabsView.tab('Pessoa Física'), text='Data(Abertura)', font=('Roboto', 16))
+        openingDateLabel.grid(row=2, column=5, padx=15, pady=5, sticky='nw')
         
-        calendario = tkcal.DateEntry(tabsView.tab('Pessoa Física'), font=('Roboto', 12), width=15)
-        calendario.grid(row=3, column=5, padx=15, pady=5, sticky='nw')
+        calendar = tkcal.DateEntry(tabsView.tab('Pessoa Física'), font=('Roboto', 12), width=15)
+        calendar.grid(row=3, column=5, padx=15, pady=5, sticky='nw')
     
         # Linha 4 e 5
         # Coluna 0 e 3
         # CPF
-        labelCpf = ctk.CTkLabel(tabsView.tab('Pessoa Física'), text='CPF', font=('Roboto', 16))
-        labelCpf.grid(row=4, column=0, padx=15, pady=5, sticky='nw')
+        cpfLabel = ctk.CTkLabel(tabsView.tab('Pessoa Física'), text='CPF', font=('Roboto', 16))
+        cpfLabel.grid(row=4, column=0, padx=15, pady=5, sticky='nw')
         
-        entradaCPF = ctk.CTkEntry(tabsView.tab('Pessoa Física'), placeholder_text='Informe apenas dígitos', width=250)
-        entradaCPF.grid(row=5, column=0, columnspan=2, padx=10, pady=5, sticky='nw')
+        cpfEntry = ctk.CTkEntry(tabsView.tab('Pessoa Física'), placeholder_text='Informe apenas dígitos', width=250)
+        cpfEntry.grid(row=5, column=0, columnspan=2, padx=10, pady=5, sticky='nw')
         
         # telefone
-        labelTelefone = ctk.CTkLabel(tabsView.tab('Pessoa Física'), text='Telefone', font=('Roboto', 16))
-        labelTelefone.grid(row=4, column=3, padx=15, pady=5, sticky='nw')
+        phoneLabel = ctk.CTkLabel(tabsView.tab('Pessoa Física'), text='Telefone', font=('Roboto', 16))
+        phoneLabel.grid(row=4, column=3, padx=15, pady=5, sticky='nw')
         
-        entradaTelefone= ctk.CTkEntry(tabsView.tab('Pessoa Física'), placeholder_text='Telefone', width=250)
-        entradaTelefone.grid(row=5, column=3, columnspan=2, padx=10, pady=5, sticky='nw')
+        phoneEntry = ctk.CTkEntry(tabsView.tab('Pessoa Física'), placeholder_text='Telefone', width=250)
+        phoneEntry.grid(row=5, column=3, columnspan=2, padx=10, pady=5, sticky='nw')
         
         # Endereço
-        labelEndereco = ctk.CTkLabel(tabsView.tab('Pessoa Física'), text='Endereço', font=('Roboto', 16))
-        labelEndereco.grid(row=4, column=5, padx=15, pady=5, sticky='nw')
+        addressLabel = ctk.CTkLabel(tabsView.tab('Pessoa Física'), text='Endereço', font=('Roboto', 16))
+        addressLabel.grid(row=4, column=5, padx=15, pady=5, sticky='nw')
         
-        entradaEndereco = ctk.CTkEntry(tabsView.tab('Pessoa Física'), placeholder_text='Digite o seu Endereço', width=250)
-        entradaEndereco.grid(row=5, column=5, columnspan=2, padx=10, pady=5, sticky='nw')
+        addressEntry = ctk.CTkEntry(tabsView.tab('Pessoa Física'), placeholder_text='Digite o seu Endereço', width=250)
+        addressEntry.grid(row=5, column=5, columnspan=2, padx=10, pady=5, sticky='nw')
         
         # Pessoa física
         # Botões de Ação - Importante para executar as principais funcionalidades
         
         # Função limpar
-        def limpar_camposFisica():
+        def clearPhysicalFields():
             for widgetTabview in self.winfo_children():
                 if isinstance(widgetTabview, ctk.CTkTabview):
-                    abaFisica = widgetTabview.winfo_children()[0]
-                    for entry in abaFisica.winfo_children():
+                    physicalTab = widgetTabview.winfo_children()[0]
+                    for entry in physicalTab.winfo_children():
                         if isinstance(entry, ctk.CTkEntry):
                             entry.delete(0, ctk.END)
-                            entradaSenha.configure(show='*') # Segurança -  Manter a proteção das informações inseridas no campo senha
+                            passwordEntry.configure(show='*') # Segurança -  Manter a proteção das informações inseridas no campo senha
                      
         # Botão Limpar campos               
-        botaoLimparFisica = ctk.CTkButton(
+        clearPhysicalButton = ctk.CTkButton(
             tabsView.tab('Pessoa Física'), 
             text='Limpar Campos', 
             font=('Roboto', 16),
@@ -308,46 +308,46 @@ class App(ctk.CTk):
             bg_color='transparent',
             fg_color='#c4003b',
             hover_color='#730732',
-            command=limpar_camposFisica
+            command=clearPhysicalFields
             )
         
-        botaoLimparFisica.grid(row=6, column=0, padx=15, pady=15, sticky='sw')
+        clearPhysicalButton.grid(row=6, column=0, padx=15, pady=15, sticky='sw')
          
          # Função enviar dados
-        def enviar_dadosFisica():
+        def sendPhysicalData():
             
-            def cadastrarClientes(caminhoArquivoExcel, *args):
-                arquivoExcel = load_workbook(caminhoArquivoExcel)
-                planilha = arquivoExcel['PessoaFisica'] # ativa  nossa planilha
-                novaLinha = planilha.max_row # pega número da última linha
+            def registerClients(excelFilePath, *args):
+                excelFile = load_workbook(excelFilePath)
+                worksheet = excelFile['PessoaFisica'] # ativa nossa planilha
+                newRow = worksheet.max_row # pega número da última linha
                 
-                colunas = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
+                columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
                 for i, info in enumerate(args):
-                    if i < len(colunas):  # Verifica se o número de argumentos não excede as colunas
-                        planilha[f'{colunas[i]}{novaLinha + 1}'] = info
+                    if i < len(columns):  # Verifica se o número de argumentos não excede as colunas
+                        worksheet[f'{columns[i]}{newRow + 1}'] = info
                     
-                arquivoExcel.save(caminhoArquivoExcel)
+                excelFile.save(excelFilePath)
          
-            nome = entradaNome.get()
-            sobrenome = entradaSobrenome.get()
-            sexo = opcaoMenuSexo.get()
-            email = entradaEmail.get()
-            senha = entradaSenha.get()
-            data = calendario.get_date()
-            cpf = entradaCPF.get()
-            telefone = entradaTelefone.get()
-            endereco = entradaEndereco.get()
+            name = nameEntry.get()
+            lastName = lastNameEntry.get()
+            gender = genderMenu.get()
+            email = emailEntry.get()
+            password = passwordEntry.get()
+            date = calendar.get_date()
+            cpf = cpfEntry.get()
+            phone = phoneEntry.get()
+            address = addressEntry.get()
 
             # Chama a função para criar ou abrir o arquivo
-            caminho_arquivo = 'cadastroClientes.xlsx'
-            criar_arquivo(caminho_arquivo) # Validação que o nosso arquivo existe
+            filePath = 'cadastroClientes.xlsx'
+            createFile(filePath) # Validação que o nosso arquivo existe
             
-            cadastrarClientes(caminho_arquivo, nome, sobrenome, sexo, email, senha, data, cpf, telefone, endereco)
+            registerClients(filePath, name, lastName, gender, email, password, date, cpf, phone, address)
             
             messagebox.showinfo(title='Mensagem sobre Cadastro', message='Cliente cadastrado com sucesso!')          
             
         # Botão Enviar
-        botaoEnviarFisica = ctk.CTkButton(
+        sendPhysicalButton = ctk.CTkButton(
             tabsView.tab('Pessoa Física'), 
             text='Enviar', 
             font=('Roboto', 16),
@@ -357,34 +357,34 @@ class App(ctk.CTk):
             bg_color='transparent',
             fg_color='#02ad10',
             hover_color='#730732',
-            command=enviar_dadosFisica
+            command=sendPhysicalData
             )
         
-        botaoEnviarFisica.grid(row=6, column=3, padx=15, pady=15, sticky='sw')
+        sendPhysicalButton.grid(row=6, column=3, padx=15, pady=15, sticky='sw')
     
         # Pessoa Jurídica TODO
         
          # Linha 0 e 1
         # Coluna 0 e 3
         # Nome Empresa
-        labelNomeEmpresa = ctk.CTkLabel(tabsView.tab('Pessoa Jurídica'), text='Empresa', font=('Roboto', 16))
-        labelNomeEmpresa.grid(row=0, column=0, padx=15, pady=5, sticky='nw')
+        companyNameLabel = ctk.CTkLabel(tabsView.tab('Pessoa Jurídica'), text='Empresa', font=('Roboto', 16))
+        companyNameLabel.grid(row=0, column=0, padx=15, pady=5, sticky='nw')
         
-        entradaNomeEmpresa = ctk.CTkEntry(tabsView.tab('Pessoa Jurídica'), placeholder_text='Nome Empresarial', width=250)
-        entradaNomeEmpresa.grid(row=1, column=0, columnspan=2, padx=10, pady=5, sticky='nw')
+        companyNameEntry = ctk.CTkEntry(tabsView.tab('Pessoa Jurídica'), placeholder_text='Nome Empresarial', width=250)
+        companyNameEntry.grid(row=1, column=0, columnspan=2, padx=10, pady=5, sticky='nw')
         
         # TÍTULO DO ESTABELECIMENTO ( NOME FANTASIA)
-        labelNomeFantasia = ctk.CTkLabel(tabsView.tab('Pessoa Jurídica'), text='Nome Fantasia', font=('Roboto', 16))
-        labelNomeFantasia.grid(row=0, column=3, padx=15, pady=5, sticky='nw')
+        tradeNameLabel = ctk.CTkLabel(tabsView.tab('Pessoa Jurídica'), text='Nome Fantasia', font=('Roboto', 16))
+        tradeNameLabel.grid(row=0, column=3, padx=15, pady=5, sticky='nw')
         
-        entradaNomeFantasia = ctk.CTkEntry(tabsView.tab('Pessoa Jurídica'), placeholder_text='Informe o Título do Estabelecimento', width=250)
-        entradaNomeFantasia.grid(row=1, column=3, columnspan=2, padx=10, pady=5, sticky='nw')
+        tradeNameEntry = ctk.CTkEntry(tabsView.tab('Pessoa Jurídica'), placeholder_text='Informe o Título do Estabelecimento', width=250)
+        tradeNameEntry.grid(row=1, column=3, columnspan=2, padx=10, pady=5, sticky='nw')
         
         # Opção de Menu
-        labelTipoEmpresa = ctk.CTkLabel(tabsView.tab('Pessoa Jurídica'), text='Tipo de Empresa', font=('Roboto', 16))
-        labelTipoEmpresa.grid(row=0, column=5, padx=15, pady=5, sticky='nw')
+        companyTypeLabel = ctk.CTkLabel(tabsView.tab('Pessoa Jurídica'), text='Tipo de Empresa', font=('Roboto', 16))
+        companyTypeLabel.grid(row=0, column=5, padx=15, pady=5, sticky='nw')
         
-        opcaoMenuTipoEmpresa = ctk.CTkOptionMenu(
+        companyTypeMenu = ctk.CTkOptionMenu(
             tabsView.tab('Pessoa Jurídica'), 
             values=['Microempreendedor Individual (MEI)', 'Microempresa (ME)', 'Sociedade Anônima (S/A)'], 
             bg_color='transparent', 
@@ -392,69 +392,69 @@ class App(ctk.CTk):
             dropdown_hover_color='#c4003b'
             )
         
-        opcaoMenuTipoEmpresa.grid(row=1, column=5, padx=10, pady=5, sticky='nw')
+        companyTypeMenu.grid(row=1, column=5, padx=10, pady=5, sticky='nw')
         
         # Linha 2 e 3
         # Coluna 0 e 3
         # Email Empresarial
-        labelEmailEmpresa = ctk.CTkLabel(tabsView.tab('Pessoa Jurídica'), text='E-mail Empresarial', font=('Roboto', 16))
-        labelEmailEmpresa.grid(row=2, column=0, padx=15, pady=5, sticky='nw')
+        companyEmailLabel = ctk.CTkLabel(tabsView.tab('Pessoa Jurídica'), text='E-mail Empresarial', font=('Roboto', 16))
+        companyEmailLabel.grid(row=2, column=0, padx=15, pady=5, sticky='nw')
         
-        entradaEmailEmpresa = ctk.CTkEntry(tabsView.tab('Pessoa Jurídica'), placeholder_text='Digite o E-mail da Empresa ', width=250)
-        entradaEmailEmpresa.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky='nw')
+        companyEmailEntry = ctk.CTkEntry(tabsView.tab('Pessoa Jurídica'), placeholder_text='Digite o E-mail da Empresa ', width=250)
+        companyEmailEntry.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky='nw')
         
         # Senha
-        labelSenhaEmpresa= ctk.CTkLabel(tabsView.tab('Pessoa Jurídica'), text='Senha', font=('Roboto', 16))
-        labelSenhaEmpresa.grid(row=2, column=3, padx=15, pady=5, sticky='nw')
+        companyPasswordLabel = ctk.CTkLabel(tabsView.tab('Pessoa Jurídica'), text='Senha', font=('Roboto', 16))
+        companyPasswordLabel.grid(row=2, column=3, padx=15, pady=5, sticky='nw')
         
-        entradaSenhaEmpresa = ctk.CTkEntry(tabsView.tab('Pessoa Jurídica'), placeholder_text='Digite a sua Senha', show='*', width=250)
-        entradaSenhaEmpresa.grid(row=3, column=3, columnspan=2, padx=10, pady=5, sticky='nw')
+        companyPasswordEntry = ctk.CTkEntry(tabsView.tab('Pessoa Jurídica'), placeholder_text='Digite a sua Senha', show='*', width=250)
+        companyPasswordEntry.grid(row=3, column=3, columnspan=2, padx=10, pady=5, sticky='nw')
         
         #data
-        dataAberturaEmpresa = ctk.CTkLabel(tabsView.tab('Pessoa Jurídica'), text='Data(Abertura)', font=('Roboto', 16))
-        dataAberturaEmpresa.grid(row=2, column=5, padx=15, pady=5, sticky='nw')
+        companyOpeningDateLabel = ctk.CTkLabel(tabsView.tab('Pessoa Jurídica'), text='Data(Abertura)', font=('Roboto', 16))
+        companyOpeningDateLabel.grid(row=2, column=5, padx=15, pady=5, sticky='nw')
         
         # Calendario 
-        calendarioEmpresa = tkcal.DateEntry(tabsView.tab('Pessoa Jurídica'), font=('Roboto', 12), width=15)
-        calendarioEmpresa.grid(row=3, column=5, padx=15, pady=5, sticky='nw')
+        companyCalendar = tkcal.DateEntry(tabsView.tab('Pessoa Jurídica'), font=('Roboto', 12), width=15)
+        companyCalendar.grid(row=3, column=5, padx=15, pady=5, sticky='nw')
     
         # Linha 4 e 5
         # Coluna 0 e 3
         # CNPJ
-        labelCnpj = ctk.CTkLabel(tabsView.tab('Pessoa Jurídica'), text='CNPJ', font=('Roboto', 16))
-        labelCnpj.grid(row=4, column=0, padx=15, pady=5, sticky='nw')
+        cnpjLabel = ctk.CTkLabel(tabsView.tab('Pessoa Jurídica'), text='CNPJ', font=('Roboto', 16))
+        cnpjLabel.grid(row=4, column=0, padx=15, pady=5, sticky='nw')
         
-        entradaCnpj = ctk.CTkEntry(tabsView.tab('Pessoa Jurídica'), placeholder_text='Informe apenas dígitos', width=250)
-        entradaCnpj.grid(row=5, column=0, columnspan=2, padx=10, pady=5, sticky='nw')
+        cnpjEntry = ctk.CTkEntry(tabsView.tab('Pessoa Jurídica'), placeholder_text='Informe apenas dígitos', width=250)
+        cnpjEntry.grid(row=5, column=0, columnspan=2, padx=10, pady=5, sticky='nw')
         
         # telefone
-        labelTelefoneEmpresa = ctk.CTkLabel(tabsView.tab('Pessoa Jurídica'), text='Telefone', font=('Roboto', 16))
-        labelTelefoneEmpresa.grid(row=4, column=3, padx=15, pady=5, sticky='nw')
+        companyPhoneLabel = ctk.CTkLabel(tabsView.tab('Pessoa Jurídica'), text='Telefone', font=('Roboto', 16))
+        companyPhoneLabel.grid(row=4, column=3, padx=15, pady=5, sticky='nw')
         
-        entradaTelefoneEmpresa= ctk.CTkEntry(tabsView.tab('Pessoa Jurídica'), placeholder_text='Telefone', width=250)
-        entradaTelefoneEmpresa.grid(row=5, column=3, columnspan=2, padx=10, pady=5, sticky='nw')
+        companyPhoneEntry = ctk.CTkEntry(tabsView.tab('Pessoa Jurídica'), placeholder_text='Telefone', width=250)
+        companyPhoneEntry.grid(row=5, column=3, columnspan=2, padx=10, pady=5, sticky='nw')
         
         # Endereço
-        labelEnderecoEmpresa = ctk.CTkLabel(tabsView.tab('Pessoa Jurídica'), text='Endereço', font=('Roboto', 16))
-        labelEnderecoEmpresa.grid(row=4, column=5, padx=15, pady=5, sticky='nw')
+        companyAddressLabel = ctk.CTkLabel(tabsView.tab('Pessoa Jurídica'), text='Endereço', font=('Roboto', 16))
+        companyAddressLabel.grid(row=4, column=5, padx=15, pady=5, sticky='nw')
         
-        entradaEnderecoEmpresa = ctk.CTkEntry(tabsView.tab('Pessoa Jurídica'), placeholder_text='Digite o Endereço do Estabelecimento', width=250)
-        entradaEnderecoEmpresa.grid(row=5, column=5, columnspan=2, padx=10, pady=5, sticky='nw')
+        companyAddressEntry = ctk.CTkEntry(tabsView.tab('Pessoa Jurídica'), placeholder_text='Digite o Endereço do Estabelecimento', width=250)
+        companyAddressEntry.grid(row=5, column=5, columnspan=2, padx=10, pady=5, sticky='nw')
         
         # Botões de Ação - Importante para executar as principais funcionalidades
         
         # Função Limpar
-        def limpar_camposJuridica():
+        def clearLegalFields():
             for widgetTabview in self.winfo_children():
                 if isinstance(widgetTabview, ctk.CTkTabview):
-                    abaJuridica = widgetTabview.winfo_children()[1]
-                    for entry in abaJuridica.winfo_children():
+                    legalTab = widgetTabview.winfo_children()[1]
+                    for entry in legalTab.winfo_children():
                         if isinstance(entry, ctk.CTkEntry):
                             entry.delete(0, ctk.END)
-                            entradaSenhaEmpresa.configure(show='*') # Segurança -  Manter a proteção das informações inseridas no campo senha
+                            companyPasswordEntry.configure(show='*') # Segurança -  Manter a proteção das informações inseridas no campo senha
                                     
         # Botão limmpar               
-        botaoLimparJuridica = ctk.CTkButton(
+        clearLegalButton = ctk.CTkButton(
             tabsView.tab('Pessoa Jurídica'), 
             text='Limpar Campos', 
             font=('Roboto', 16),
@@ -464,44 +464,44 @@ class App(ctk.CTk):
             bg_color='transparent',
             fg_color='#c4003b',
             hover_color='#730732',
-            command=limpar_camposJuridica
+            command=clearLegalFields
             )
         
-        botaoLimparJuridica.grid(row=6, column=0, padx=15, pady=15, sticky='sw')
+        clearLegalButton.grid(row=6, column=0, padx=15, pady=15, sticky='sw')
     
         # Função Enviar dados
-        def enviar_dadosJuridica():
+        def sendLegalData():
         
-            def cadastrarClientes(caminhoArquivoExcel, *args):
-                arquivoExcel = load_workbook(caminhoArquivoExcel)
-                planilha = arquivoExcel['PessoaJuridica'] # ativa  nossa planilha
-                novaLinha = planilha.max_row # pega número da última linha
+            def registerClients(excelFilePath, *args):
+                excelFile = load_workbook(excelFilePath)
+                worksheet = excelFile['PessoaJuridica'] # ativa nossa planilha
+                newRow = worksheet.max_row # pega número da última linha
                 
-                colunas = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
+                columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
                 for i, info in enumerate(args):
-                    if i < len(colunas):  # Verifica se o número de argumentos não excede as colunas
-                        planilha[f'{colunas[i]}{novaLinha + 1}'] = info
+                    if i < len(columns):  # Verifica se o número de argumentos não excede as colunas
+                        worksheet[f'{columns[i]}{newRow + 1}'] = info
                     
-                arquivoExcel.save(caminhoArquivoExcel)
+                excelFile.save(excelFilePath)
          
-            nomeEmpresa = entradaNomeEmpresa.get()
-            nomeFantasia = entradaNomeFantasia.get()
-            nomeTipoEmpresa = opcaoMenuTipoEmpresa.get()
-            emailEmpresa = entradaEmailEmpresa.get()
-            senhaEmpresa = entradaSenhaEmpresa.get()
-            dataEmpresa = calendarioEmpresa.get_date()
-            cnpj = entradaCnpj.get()
-            telefoneEmpresa = entradaTelefoneEmpresa.get()
-            enderecoEmpresa = entradaEnderecoEmpresa.get()
+            companyName = companyNameEntry.get()
+            tradeName = tradeNameEntry.get()
+            companyType = companyTypeMenu.get()
+            companyEmail = companyEmailEntry.get()
+            companyPassword = companyPasswordEntry.get()
+            companyDate = companyCalendar.get_date()
+            cnpj = cnpjEntry.get()
+            companyPhone = companyPhoneEntry.get()
+            companyAddress = companyAddressEntry.get()
 
             # Chama a função para criar ou abrir o arquivo
-            caminho_arquivo = 'cadastroClientes.xlsx'
-            criar_arquivo(caminho_arquivo) # Validação que o nosso arquivo existe
+            filePath = 'cadastroClientes.xlsx'
+            createFile(filePath) # Validação que o nosso arquivo existe
             
-            cadastrarClientes(caminho_arquivo, nomeEmpresa, nomeFantasia, nomeTipoEmpresa,  emailEmpresa, senhaEmpresa, dataEmpresa, cnpj, telefoneEmpresa, enderecoEmpresa)
+            registerClients(filePath, companyName, tradeName, companyType, companyEmail, companyPassword, companyDate, cnpj, companyPhone, companyAddress)
             
             messagebox.showinfo(title='Mensagem sobre Cadastro', message='Cliente cadastrado com sucesso!')         
-        botaoEnviarJuridica = ctk.CTkButton(
+        sendLegalButton = ctk.CTkButton(
             tabsView.tab('Pessoa Jurídica'), 
             text='Enviar', 
             font=('Roboto', 16),
@@ -511,19 +511,19 @@ class App(ctk.CTk):
             bg_color='transparent',
             fg_color='#02ad10',
             hover_color='#730732',
-            command=enviar_dadosJuridica
+            command=sendLegalData
             )
         
-        botaoEnviarJuridica.grid(row=6, column=3, padx=15, pady=15, sticky='sw')
+        sendLegalButton.grid(row=6, column=3, padx=15, pady=15, sticky='sw')
         
         
         # Botão de fechar
-        def fechar():
+        def close():
             self.quit()
         
-        for cadastro in ['Pessoa Física', 'Pessoa Jurídica']:
-            botaoFechar = ctk.CTkButton(
-                tabsView.tab(cadastro), 
+        for register in ['Pessoa Física', 'Pessoa Jurídica']:
+            closeButton = ctk.CTkButton(
+                tabsView.tab(register), 
                 text='Fechar', 
                 font=('Roboto', 16),
                 height=30,
@@ -532,10 +532,10 @@ class App(ctk.CTk):
                 bg_color='transparent',
                 fg_color='#c4003b',
                 hover_color='#730732',
-                command=fechar
+                command=close
                 )
             
-            botaoFechar.grid(row=7, column=5, padx=10, pady=15, sticky='se')
+            closeButton.grid(row=7, column=5, padx=10, pady=15, sticky='se')
 
 # Inicializa o aplicativo
 if __name__ == '__main__':
